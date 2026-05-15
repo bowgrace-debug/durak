@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Durak – Tracker</title>
+  <style>
+    :root {
+      --bg: #0f0f14;
+      --surface: #1a1a24;
+      --surface2: #22222f;
+      --border: #2e2e3f;
+      --accent: #e63946;
+      --accent2: #457b9d;
+      --gold: #f4a261;
+      --text: #e8e8f0;
+      --muted: #7070a0;
+      --green: #2a9d8f;
+      --silver: #9ca3b0;
+      --bronze: #c97c3a;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1.1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    header .logo { font-size: 1.7rem; }
+    header h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: 0.04em; }
+    header h1 span { color: var(--accent); }
+    header .sub { font-size: 0.76rem; color: var(--muted); margin-top: 0.1rem; }
+
+    main {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 4rem;
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 700px) {
+      main { grid-template-columns: 320px 1fr; }
+      .span2 { grid-column: 1 / -1; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+    }
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    input, select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 0.6rem 0.85rem;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    input:focus, select:focus { border-color: var(--accent2); }
+    input::placeholder { color: var(--muted); }
+
+    .select-wrap {
+      position: relative;
+    }
+    .select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 0.8rem;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 0.6rem 1.1rem;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    button:active { transform: scale(0.97); }
+    button:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      width: 100%;
+      padding: 0.72rem;
+      margin-top: 0.25rem;
+    }
+    .btn-primary:hover:not(:disabled) { opacity: 0.87; }
+
+    .btn-ghost {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .btn-ghost:hover { border-color: var(--accent2); }
+
+    .btn-icon {
+      background: transparent;
+      color: var(--muted);
+      border: none;
+      font-size: 0.95rem;
+      padding: 0.3rem 0.4rem;
+      line-height: 1;
+      border-radius: 6px;
+    }
+    .btn-icon:hover { color: var(--text); background: var(--surface2); }
+
+    .btn-link {
+      background: transparent;
+      color: var(--accent);
+      border: none;
+      font-size: 0.78rem;
+      padding: 0.2rem 0.4rem;
+    }
+    .btn-link:hover { opacity: 0.8; }
+
+    /* Players list */
+    .add-row { display: flex; gap: 0.5rem; margin-bottom: 0.9rem; }
+    .add-row input { flex: 1; }
+
+    .player-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.45rem 0.65rem;
+      margin-bottom: 0.35rem;
+      font-size: 0.88rem;
+    }
+    .player-chip .name { flex: 1; }
+
+    /* Avatar */
+    .av {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.68rem; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .av-sm { width: 22px; height: 22px; font-size: 0.6rem; }
+
+    /* Place rows in form */
+    .place-row {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      margin-bottom: 0.65rem;
+    }
+    .place-label {
+      font-size: 1.3rem;
+      width: 28px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .place-row .select-wrap { flex: 1; }
+
+    /* Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 0.65rem;
+    }
+    .stat-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.8rem 0.9rem;
+      text-align: center;
+    }
+    .stat-box .val { font-size: 1.7rem; font-weight: 700; line-height: 1.1; }
+    .stat-box .lbl { font-size: 0.7rem; color: var(--muted); margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* Leaderboard table */
+    .board { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+    .board th {
+      text-align: left;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      padding: 0.45rem 0.6rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .board td { padding: 0.58rem 0.6rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .board tr:last-child td { border-bottom: none; }
+    .board tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 6px;
+      padding: 0.15rem 0.5rem;
+    }
+    .badge-gold   { background: rgba(244,162,97,.2);  color: var(--gold); }
+    .badge-silver { background: rgba(156,163,176,.2); color: var(--silver); }
+    .badge-durak  { background: rgba(230,57,70,.2);   color: var(--accent); }
+
+    /* History */
+    .history { display: flex; flex-direction: column; gap: 0.45rem; max-height: 400px; overflow-y: auto; }
+    .history::-webkit-scrollbar { width: 4px; }
+    .history::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .hi {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6rem 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-size: 0.83rem;
+    }
+    .hi-date { color: var(--muted); font-size: 0.73rem; white-space: nowrap; flex-shrink: 0; }
+    .hi-body { flex: 1; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+    .hi-place { display: flex; align-items: center; gap: 0.3rem; }
+
+    /* Empty */
+    .empty { text-align: center; padding: 1.8rem 1rem; color: var(--muted); font-size: 0.86rem; }
+    .empty .ico { font-size: 1.8rem; margin-bottom: 0.4rem; }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 1.5rem; left: 50%;
+      transform: translateX(-50%) translateY(70px);
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.65rem 1.1rem;
+      font-size: 0.86rem; z-index: 100;
+      transition: transform 0.25s; pointer-events: none; white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* Dialog */
+    .overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6); z-index: 200;
+      align-items: center; justify-content: center;
+    }
+    .overlay.open { display: flex; }
+    .dialog {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+      max-width: 320px; width: 90%;
+    }
+    .dialog h3 { margin-bottom: 0.45rem; }
+    .dialog p { color: var(--muted); font-size: 0.86rem; margin-bottom: 1.2rem; line-height: 1.5; }
+    .dialog-btns { display: flex; gap: 0.5rem; justify-content: flex-end; }
+
+    @media (max-width: 420px) {
+      .board .hide-xs { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🃏</div>
+  <div>
+    <h1>Durak <span>Tracker</span></h1>
+    <div class="sub">Wer ist der Dummkopf?</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- LEFT COLUMN -->
+  <div style="display:flex;flex-direction:column;gap:1.5rem">
+
+    <!-- Spieler verwalten -->
+    <div class="card">
+      <div class="card-title">♟ Spieler</div>
+      <div class="add-row">
+        <input id="nameInput" type="text" placeholder="Name eingeben…" maxlength="20" />
+        <button class="btn-ghost" onclick="addPlayer()">+ Add</button>
+      </div>
+      <div id="playerList"></div>
+    </div>
+
+    <!-- Neue Runde -->
+    <div class="card">
+      <div class="card-title">♦ Neue Runde</div>
+
+      <div class="place-row">
+        <div class="place-label">🥇</div>
+        <div class="select-wrap">
+          <select id="sel1"><option value="">– 1. Platz –</option></select>
+        </div>
+      </div>
+      <div class="place-row">
+        <div class="place-label">🥈</div>
+        <div class="select-wrap">
+          <select id="sel2"><option value="">– 2. Platz –</option></select>
+        </div>
+      </div>
+      <div class="place-row">
+        <div class="place-label">🃏</div>
+        <div class="select-wrap">
+          <select id="selD"><option value="">– Durak –</option></select>
+        </div>
+      </div>
+
+      <div style="margin-top:0.2rem">
+        <div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.4rem">Datum</div>
+        <input type="date" id="gameDate" />
+      </div>
+
+      <button class="btn-primary" onclick="recordGame()">Runde speichern ✓</button>
+    </div>
+
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div style="display:flex;flex-direction:column;gap:1.5rem">
+
+    <!-- Übersicht -->
+    <div class="card">
+      <div class="card-title">📊 Übersicht</div>
+      <div class="stats-grid" id="statsRow"></div>
+    </div>
+
+    <!-- Rangliste -->
+    <div class="card">
+      <div class="card-title">🏆 Rangliste</div>
+      <div id="leaderboard"></div>
+    </div>
+
+  </div>
+
+  <!-- FULL WIDTH: History -->
+  <div class="card span2">
+    <div class="card-title">
+      <span>📜 Spielverlauf</span>
+      <button class="btn-link" onclick="confirmClear()">Alle löschen</button>
+    </div>
+    <div class="history" id="historyList"></div>
+  </div>
+
+</main>
+
+<div id="toast"></div>
+
+<div class="overlay" id="overlay">
+  <div class="dialog">
+    <h3>Alle Daten löschen?</h3>
+    <p>Der gesamte Spielverlauf und alle Statistiken werden unwiderruflich gelöscht.</p>
+    <div class="dialog-btns">
+      <button class="btn-ghost" onclick="closeDialog()">Abbrechen</button>
+      <button class="btn-primary" style="width:auto;margin-top:0" onclick="clearAll()">Löschen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const KEY = 'durak_v3';
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || { players: [], games: [] }; }
+    catch { return { players: [], games: [] }; }
+  }
+  function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+
+  let state = load();
+
+  // ── Colors / Avatar ───────────────────────────────────────────────
+  const COLORS = ['#e63946','#457b9d','#f4a261','#2a9d8f','#a786df','#e9c46a','#06d6a0','#ef476f','#118ab2','#ffd166'];
+
+  function colorFor(name) {
+    let h = 0;
+    for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xfffffff;
+    return COLORS[h % COLORS.length];
+  }
+
+  function initials(name) {
+    return name.split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  }
+
+  function avatar(name, sm = false) {
+    const c = colorFor(name);
+    const cls = sm ? 'av av-sm' : 'av';
+    return `<div class="${cls}" style="background:${c}22;color:${c}">${initials(name)}</div>`;
+  }
+
+  // ── Players ───────────────────────────────────────────────────────
+  function addPlayer() {
+    const inp = document.getElementById('nameInput');
+    const name = inp.value.trim();
+    if (!name) return;
+    if (state.players.includes(name)) { toast('Name bereits vorhanden'); return; }
+    state.players.push(name);
+    save();
+    inp.value = '';
+    render();
+    toast(`${name} hinzugefügt`);
+  }
+
+  function removePlayer(name) {
+    const inUse = state.games.some(g => g.first === name || g.second === name || g.durak === name);
+    if (inUse) { toast('Spieler hat Spieleinträge — nicht löschbar'); return; }
+    state.players = state.players.filter(p => p !== name);
+    save();
+    render();
+    toast(`${name} entfernt`);
+  }
+
+  // ── Record game ───────────────────────────────────────────────────
+  function recordGame() {
+    const first  = document.getElementById('sel1').value;
+    const second = document.getElementById('sel2').value;
+    const durak  = document.getElementById('selD').value;
+    const date   = document.getElementById('gameDate').value || today();
+
+    if (!first || !second || !durak) { toast('Alle drei Plätze auswählen'); return; }
+    const chosen = [first, second, durak];
+    if (new Set(chosen).size < 3) { toast('Jeder Platz braucht einen anderen Spieler'); return; }
+
+    state.games.push({ id: Date.now(), first, second, durak, date });
+    save();
+    document.getElementById('sel1').value = '';
+    document.getElementById('sel2').value = '';
+    document.getElementById('selD').value = '';
+    render();
+    toast('Runde gespeichert! 🃏');
+  }
+
+  // ── Compute stats ─────────────────────────────────────────────────
+  function computeStats() {
+    const s = {};
+    state.players.forEach(p => { s[p] = { games: 0, first: 0, second: 0, durak: 0 }; });
+    state.games.forEach(g => {
+      [g.first, g.second, g.durak].forEach(p => {
+        if (!s[p]) s[p] = { games: 0, first: 0, second: 0, durak: 0 };
+        s[p].games++;
+      });
+      s[g.first].first++;
+      s[g.second].second++;
+      s[g.durak].durak++;
+    });
+    return s;
+  }
+
+  // ── Render ────────────────────────────────────────────────────────
+  function render() {
+    renderPlayers();
+    renderSelects();
+    renderStats();
+    renderLeaderboard();
+    renderHistory();
+  }
+
+  function renderPlayers() {
+    const el = document.getElementById('playerList');
+    if (!state.players.length) {
+      el.innerHTML = '<div class="empty"><div class="ico">👤</div>Noch keine Spieler</div>';
+      return;
+    }
+    el.innerHTML = state.players.map(p => `
+      <div class="player-chip">
+        ${avatar(p)}
+        <span class="name">${esc(p)}</span>
+        <button class="btn-icon" onclick="removePlayer('${esc(p)}')" title="Entfernen">✕</button>
+      </div>
+    `).join('');
+  }
+
+  function renderSelects() {
+    const opts = state.players.map(p =>
+      `<option value="${esc(p)}">${esc(p)}</option>`
+    ).join('');
+    const base = '<option value="">–</option>' + opts;
+    ['sel1','sel2','selD'].forEach(id => {
+      const sel = document.getElementById(id);
+      const prev = sel.value;
+      sel.innerHTML = base;
+      if (prev) sel.value = prev;
+    });
+  }
+
+  function renderStats() {
+    const el = document.getElementById('statsRow');
+    const s = computeStats();
+    const total = state.games.length;
+
+    let topFirst = '–', topFirstN = -1;
+    let mostDurak = '–', mostDurakN = -1;
+
+    state.players.forEach(p => {
+      if (s[p].first > topFirstN)  { topFirstN = s[p].first;  topFirst  = p; }
+      if (s[p].durak > mostDurakN) { mostDurakN = s[p].durak; mostDurak = p; }
+    });
+
+    el.innerHTML = `
+      <div class="stat-box"><div class="val">${total}</div><div class="lbl">Runden</div></div>
+      <div class="stat-box"><div class="val">${state.players.length}</div><div class="lbl">Spieler</div></div>
+      <div class="stat-box"><div class="val" style="font-size:1rem;color:var(--gold)">${total ? esc(topFirst) : '–'}</div><div class="lbl">Meiste Siege</div></div>
+      <div class="stat-box"><div class="val" style="font-size:1rem;color:var(--accent)">${total ? esc(mostDurak) : '–'}</div><div class="lbl">Meistens Durak</div></div>
+    `;
+  }
+
+  function renderLeaderboard() {
+    const el = document.getElementById('leaderboard');
+    const s = computeStats();
+
+    const rows = state.players
+      .map(p => ({ name: p, ...s[p] }))
+      .filter(r => r.games > 0)
+      .sort((a, b) =>
+        b.first - a.first ||
+        b.second - a.second ||
+        a.durak - b.durak
+      );
+
+    if (!rows.length) {
+      el.innerHTML = '<div class="empty"><div class="ico">🏆</div>Noch keine Runden gespielt</div>';
+      return;
+    }
+
+    const medal = i => ['🥇','🥈','🥉'][i] ?? (i + 1);
+
+    el.innerHTML = `
+      <table class="board">
+        <thead><tr>
+          <th>#</th>
+          <th>Spieler</th>
+          <th>🥇</th>
+          <th>🥈</th>
+          <th>🃏 Durak</th>
+          <th class="hide-xs">Spiele</th>
+        </tr></thead>
+        <tbody>
+          ${rows.map((r, i) => `
+            <tr>
+              <td style="font-weight:700;font-size:0.95rem">${medal(i)}</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:0.5rem">
+                  ${avatar(r.name, true)}
+                  <span>${esc(r.name)}</span>
+                </div>
+              </td>
+              <td><span class="badge badge-gold">${r.first}</span></td>
+              <td><span class="badge badge-silver">${r.second}</span></td>
+              <td><span class="badge badge-durak">${r.durak}</span></td>
+              <td class="hide-xs" style="color:var(--muted)">${r.games}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderHistory() {
+    const el = document.getElementById('historyList');
+    if (!state.games.length) {
+      el.innerHTML = '<div class="empty"><div class="ico">📜</div>Keine Runden aufgezeichnet</div>';
+      return;
+    }
+    el.innerHTML = [...state.games].reverse().map(g => `
+      <div class="hi">
+        <div class="hi-date">${fmtDate(g.date)}</div>
+        <div class="hi-body">
+          <div class="hi-place">🥇 <strong>${esc(g.first)}</strong></div>
+          <div class="hi-place">🥈 ${esc(g.second)}</div>
+          <div class="hi-place" style="color:var(--accent)">🃏 ${esc(g.durak)}</div>
+        </div>
+        <button class="btn-icon" onclick="deleteGame(${g.id})" title="Löschen">🗑</button>
+      </div>
+    `).join('');
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────
+  function esc(s) {
+    return String(s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function today() { return new Date().toISOString().slice(0, 10); }
+
+  function fmtDate(iso) {
+    if (!iso) return '';
+    const [y, m, d] = iso.split('-');
+    return `${d}.${m}.${y}`;
+  }
+
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove('show'), 2400);
+  }
+
+  function deleteGame(id) {
+    state.games = state.games.filter(g => g.id !== id);
+    save();
+    render();
+    toast('Runde gelöscht');
+  }
+
+  function confirmClear() {
+    if (!state.games.length) { toast('Keine Spiele vorhanden'); return; }
+    document.getElementById('overlay').classList.add('open');
+  }
+  function closeDialog() { document.getElementById('overlay').classList.remove('open'); }
+  function clearAll() {
+    state.games = [];
+    save();
+    closeDialog();
+    render();
+    toast('Alle Daten gelöscht');
+  }
+
+  document.getElementById('nameInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addPlayer();
+  });
+
+  document.getElementById('gameDate').value = today();
+
+  render();
+</script>
+</body>
+</html>
