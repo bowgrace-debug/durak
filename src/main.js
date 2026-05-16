@@ -7,41 +7,33 @@ let currentUser = null;
 // ---------------------------------------------------------------------------
 // Auth
 // ---------------------------------------------------------------------------
-async function signInGoogle() {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.origin },
-  });
-  if (error) toast('Login fehlgeschlagen: ' + error.message);
-}
-
 async function signOutUser() {
   const { error } = await supabase.auth.signOut();
   if (error) toast('Logout fehlgeschlagen');
+  else window.location.href = '/login.html';
 }
 
 function setAuthUI(user) {
-  const loginBtn = document.getElementById('loginBtn');
   const userBar = document.getElementById('userBar');
   const userName = document.getElementById('userName');
 
   if (user) {
-    loginBtn.style.display = 'none';
     userBar.style.display = 'flex';
     const meta = user.user_metadata || {};
     userName.textContent = meta.full_name || user.email || 'Angemeldet';
   } else {
-    loginBtn.style.display = '';
-    userBar.style.display = 'none';
+    window.location.href = '/login.html';
   }
 }
 
 supabase.auth.onAuthStateChange((_event, session) => {
   currentUser = session?.user ?? null;
-  setAuthUI(currentUser);
-  if (currentUser) {
-    loadData();
+  if (!currentUser) {
+    window.location.href = '/login.html';
+    return;
   }
+  setAuthUI(currentUser);
+  loadData();
 });
 
 // ---------------------------------------------------------------------------
@@ -352,7 +344,7 @@ function renderHistory() {
 Object.assign(window, {
   addPlayer, removePlayer, recordGame, deleteGame,
   confirmClear, closeDialog, clearAll,
-  signInGoogle, signOutUser,
+  signOutUser,
 });
 
 document.getElementById('nameInput').addEventListener('keydown', e => {
@@ -361,9 +353,12 @@ document.getElementById('nameInput').addEventListener('keydown', e => {
 
 document.getElementById('gameDate').value = today();
 
-// Initial load (auth state change will also trigger loadData)
 supabase.auth.getSession().then(({ data: { session } }) => {
   currentUser = session?.user ?? null;
+  if (!currentUser) {
+    window.location.href = '/login.html';
+    return;
+  }
   setAuthUI(currentUser);
   loadData();
 });
