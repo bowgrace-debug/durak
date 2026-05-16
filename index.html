@@ -294,6 +294,11 @@
     .dialog p { color: var(--muted); font-size: 0.86rem; margin-bottom: 1.2rem; line-height: 1.5; }
     .dialog-btns { display: flex; gap: 0.5rem; justify-content: flex-end; }
 
+    /* Auth */
+    .auth-bar { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; }
+    .auth-bar .btn-ghost { margin-top: 0; }
+    .user-name { font-size: 0.8rem; color: var(--muted); }
+
     @media (max-width: 420px) {
       .board .hide-xs { display: none; }
     }
@@ -306,6 +311,13 @@
   <div>
     <h1>Durak <span>Tracker</span></h1>
     <div class="sub">Wer ist der Dummkopf?</div>
+  </div>
+  <div class="auth-bar">
+    <button id="loginBtn" class="btn-ghost" onclick="signInGoogle()">Mit Google anmelden</button>
+    <div id="userBar" style="display:none;align-items:center;gap:0.5rem">
+      <span id="userName" class="user-name"></span>
+      <button class="btn-ghost" onclick="signOutUser()">Abmelden</button>
+    </div>
   </div>
 </header>
 
