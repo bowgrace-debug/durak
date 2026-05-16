@@ -1,15 +1,17 @@
 {
-  "name": "durak-tracker",
+  "name": "zw-unit-durak",
   "private": true,
-  "dependencies": {
-    "@supabase/supabase-js": "^2.0.0"
-  },
-  "devDependencies": {
-    "vite": "^6.0.0"
-  },
+  "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
   }
 }

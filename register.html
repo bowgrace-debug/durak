@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login – ZW-Unit</title>
+  <title>Registrieren – ZW-Unit</title>
   <link rel="stylesheet" href="/src/style.css" />
 </head>
 <body class="auth-page">
@@ -17,37 +17,38 @@
     </span>
   </a>
 
-  <h1>Willkommen zurück</h1>
-  <p class="auth-sub">Melde dich an um weiterzuspielen</p>
+  <h1>Account erstellen</h1>
+  <p class="auth-sub">Tritt der ZW-Unit bei</p>
 
   <div id="error-msg" class="auth-error"></div>
+  <div id="success-msg" class="auth-error" style="background:rgba(34,197,94,0.12);border-color:rgba(34,197,94,0.3);color:var(--success);"></div>
 
-  <form class="auth-form" id="login-form">
+  <form class="auth-form" id="register-form">
     <div class="input-wrap">
       <label for="email">E-Mail</label>
       <input type="email" id="email" placeholder="name@example.com" required autocomplete="email" />
     </div>
     <div class="input-wrap">
       <label for="password">Passwort</label>
-      <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password" />
+      <input type="password" id="password" placeholder="Min. 8 Zeichen" required minlength="8" autocomplete="new-password" />
+    </div>
+    <div class="input-wrap">
+      <label for="password2">Passwort bestätigen</label>
+      <input type="password" id="password2" placeholder="••••••••" required autocomplete="new-password" />
     </div>
     <button type="submit" class="btn btn-primary btn-lg btn-block" id="submit-btn">
-      Anmelden
+      Registrieren
     </button>
   </form>
 
-  <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 12px;">
-    <div class="auth-link">
-      Noch kein Konto? <a href="./register.html">Registrieren</a>
-    </div>
+  <div style="margin-top: 20px;">
+    <div class="auth-link">Bereits registriert? <a href="./login.html">Anmelden</a></div>
   </div>
 </div>
 
 <div style="position: fixed; top: 16px; right: 16px;">
-  <button class="theme-toggle" id="theme-btn" title="Theme wechseln"></button>
+  <button class="theme-toggle" id="theme-btn"></button>
 </div>
-
-<div id="toast"></div>
 
 <script type="module">
   import { supabase } from '/src/supabase.js'
@@ -63,30 +64,41 @@
     document.getElementById('theme-btn').textContent = themeIcon()
   })
 
-  const form = document.getElementById('login-form')
+  const form = document.getElementById('register-form')
   const errEl = document.getElementById('error-msg')
+  const sucEl = document.getElementById('success-msg')
   const btn = document.getElementById('submit-btn')
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault()
     errEl.classList.remove('show')
-    btn.disabled = true
-    btn.textContent = 'Anmelden...'
+    sucEl.classList.remove('show')
 
     const email = document.getElementById('email').value.trim()
-    const password = document.getElementById('password').value
+    const pw1 = document.getElementById('password').value
+    const pw2 = document.getElementById('password2').value
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    if (pw1 !== pw2) {
+      errEl.textContent = 'Passwörter stimmen nicht überein.'
+      errEl.classList.add('show')
+      return
+    }
+
+    btn.disabled = true
+    btn.textContent = 'Registrieren...'
+
+    const { error } = await supabase.auth.signUp({ email, password: pw1 })
 
     if (error) {
-      errEl.textContent = error.message === 'Invalid login credentials'
-        ? 'E-Mail oder Passwort falsch.'
-        : error.message
+      errEl.textContent = error.message
       errEl.classList.add('show')
       btn.disabled = false
-      btn.textContent = 'Anmelden'
+      btn.textContent = 'Registrieren'
     } else {
-      window.location.href = './app.html'
+      sucEl.textContent = 'Fast geschafft! Bitte bestätige deine E-Mail-Adresse, dann kannst du dich anmelden.'
+      sucEl.classList.add('show')
+      btn.disabled = true
+      btn.textContent = 'E-Mail gesendet'
     }
   })
 </script>

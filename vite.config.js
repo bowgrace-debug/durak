@@ -1,15 +1,16 @@
-import { resolve } from 'path';
+import { defineConfig } from 'vite'
 
-export default {
+export default defineConfig({
+  base: '/durak/',
   build: {
+    target: 'esnext',
     rollupOptions: {
       input: {
-        main: resolve(import.meta.dirname, 'index.html'),
-        login: resolve(import.meta.dirname, 'login.html'),
-        signup: resolve(import.meta.dirname, 'signup.html'),
-        forgotPassword: resolve(import.meta.dirname, 'forgot-password.html'),
-        resetPassword: resolve(import.meta.dirname, 'reset-password.html'),
-      },
-    },
-  },
-};
+        main: 'index.html',
+        login: 'login.html',
+        register: 'register.html',
+        app: 'app.html',
+      }
+    }
+  }
+})

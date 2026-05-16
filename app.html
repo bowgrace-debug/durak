@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZW-Unit Durak</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">
+      <img class="logo-img" src="./logo.png" alt="ZW-Unit Crew" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+      <span style="display:none;align-items:center;gap:10px;">
+        <span class="logo-mark">ZW</span>
+        <span class="logo-text">ZW-<span>UNIT</span></span>
+      </span>
+    </div>
+
+    <span class="nav-section-label">Menü</span>
+
+    <a class="nav-item active" data-view="overview">
+      <span class="nav-icon">🏠</span>Übersicht
+    </a>
+    <a class="nav-item" data-view="session">
+      <span class="nav-icon">🃏</span>Session
+    </a>
+    <a class="nav-item" data-view="players">
+      <span class="nav-icon">👥</span>Spieler
+    </a>
+    <a class="nav-item" data-view="leaderboard">
+      <span class="nav-icon">🏆</span>Ewige Liga
+    </a>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <div class="user-email" id="user-email">…</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="theme-toggle" id="theme-btn" style="flex:1;width:auto;" title="Theme wechseln"></button>
+        <button class="btn btn-glass btn-sm" id="logout-btn" style="flex:1;">Abmelden</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="main-content">
+
+    <!-- Overview -->
+    <section class="view active" id="view-overview">
+      <div class="view-header">
+        <h1 class="view-title">Übersicht</h1>
+        <button class="btn btn-primary btn-sm" id="ov-new-session-btn">+ Neue Session</button>
+      </div>
+      <div id="ov-session-banner"></div>
+      <div class="stats-grid" id="ov-stats"></div>
+      <div style="margin-top:24px;">
+        <h2 style="margin-bottom:16px;">Letzte Spiele</h2>
+        <div class="glass" style="padding:0;overflow:hidden;">
+          <table class="data-table" id="ov-recent-table">
+            <thead>
+              <tr>
+                <th>Session</th>
+                <th>Datum</th>
+                <th>Sieger</th>
+                <th>Durak</th>
+              </tr>
+            </thead>
+            <tbody id="ov-recent-body">
+              <tr><td colspan="4" style="text-align:center;color:var(--text-3);padding:32px;">Noch keine Spiele aufgezeichnet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Session -->
+    <section class="view" id="view-session">
+      <div class="view-header">
+        <h1 class="view-title">Session</h1>
+        <button class="btn btn-primary btn-sm" id="sess-new-btn">+ Neue Session</button>
+      </div>
+      <div id="sess-content">
+        <div class="glass" style="padding:48px;text-align:center;color:var(--text-2);">
+          <div style="font-size:3rem;margin-bottom:16px;">🃏</div>
+          <h2>Keine aktive Session</h2>
+          <p style="margin:8px 0 24px;">Starte eine neue Session und wähle die Spieler aus, die heute mitspielen.</p>
+          <button class="btn btn-primary" id="sess-empty-btn">+ Neue Session starten</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Players -->
+    <section class="view" id="view-players">
+      <div class="view-header">
+        <h1 class="view-title">Spieler</h1>
+        <button class="btn btn-primary btn-sm" id="pl-new-btn">+ Neuer Spieler</button>
+      </div>
+      <div class="glass" style="padding:0;overflow:hidden;">
+        <table class="data-table" id="players-table">
+          <thead>
+            <tr>
+              <th>Spieler</th>
+              <th>Spiele</th>
+              <th>Siege</th>
+              <th>Duraks</th>
+              <th>Punkte</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="players-body">
+            <tr><td colspan="6" style="text-align:center;color:var(--text-3);padding:32px;">Noch keine Spieler angelegt.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Leaderboard -->
+    <section class="view" id="view-leaderboard">
+      <div class="view-header">
+        <h1 class="view-title">Ewige Liga</h1>
+      </div>
+      <div class="stats-grid" id="lb-stats"></div>
+      <div class="glass" style="padding:0;overflow:hidden;margin-top:0;">
+        <table class="data-table" id="lb-table">
+          <thead>
+            <tr>
+              <th style="width:40px;">#</th>
+              <th>Spieler</th>
+              <th>Spiele</th>
+              <th>Siege</th>
+              <th>Duraks</th>
+              <th>Siegrate</th>
+              <th>Punkte</th>
+            </tr>
+          </thead>
+          <tbody id="lb-body">
+            <tr><td colspan="7" style="text-align:center;color:var(--text-3);padding:32px;">Noch keine Daten vorhanden.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ── Modals ── -->
+
+<!-- New Session Modal -->
+<div class="modal-overlay" id="modal-new-session">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Neue Session</h2>
+      <button class="modal-close" data-modal="modal-new-session">✕</button>
+    </div>
+    <div class="input-wrap" style="margin-bottom:16px;">
+      <label>Session-Name (optional)</label>
+      <input type="text" id="ns-name" placeholder="z.B. Freitagsrunde" />
+    </div>
+    <div class="input-wrap">
+      <label>Spieler auswählen (mind. 2)</label>
+      <div class="player-select-grid" id="ns-player-grid">
+        <div style="color:var(--text-3);font-size:0.85rem;padding:8px;">Lade Spieler…</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-glass" data-modal="modal-new-session">Abbrechen</button>
+      <button class="btn btn-primary" id="ns-confirm-btn">Session starten</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Player Modal -->
+<div class="modal-overlay" id="modal-new-player">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Neuer Spieler</h2>
+      <button class="modal-close" data-modal="modal-new-player">✕</button>
+    </div>
+    <div class="input-wrap" style="margin-bottom:16px;">
+      <label>Name</label>
+      <input type="text" id="np-name" placeholder="Spielername" maxlength="24" />
+    </div>
+    <div class="input-wrap">
+      <label>Farbe</label>
+      <div class="color-opts" id="np-colors"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-glass" data-modal="modal-new-player">Abbrechen</button>
+      <button class="btn btn-primary" id="np-confirm-btn">Spieler anlegen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Record Game Modal -->
+<div class="modal-overlay" id="modal-game">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Spiel eintragen</h2>
+      <button class="modal-close" data-modal="modal-game">✕</button>
+    </div>
+    <div style="margin-bottom:16px;">
+      <div style="font-size:0.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--danger);margin-bottom:8px;">Durak (Verlierer) *</div>
+      <div class="result-player-grid" id="game-durak-grid"></div>
+    </div>
+    <div>
+      <div style="font-size:0.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--success);margin-bottom:8px;">Sieger (optional)</div>
+      <div class="result-player-grid" id="game-winner-grid"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-glass" data-modal="modal-game">Abbrechen</button>
+      <button class="btn btn-primary" id="game-confirm-btn">Eintragen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Player Confirm -->
+<div class="modal-overlay" id="modal-delete-player">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-header">
+      <h2>Spieler löschen?</h2>
+      <button class="modal-close" data-modal="modal-delete-player">✕</button>
+    </div>
+    <p>Alle Statistiken dieses Spielers gehen verloren.</p>
+    <div class="modal-footer">
+      <button class="btn btn-glass" data-modal="modal-delete-player">Abbrechen</button>
+      <button class="btn btn-danger" id="dp-confirm-btn">Löschen</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module" src="/src/app.js"></script>
+</body>
+</html>
