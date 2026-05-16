@@ -299,6 +299,17 @@
     .auth-bar .btn-ghost { margin-top: 0; }
     .user-name { font-size: 0.8rem; color: var(--muted); }
 
+    /* Auth guard: hide app until session verified */
+    .app-loading { display: none; }
+    .auth-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
     @media (max-width: 420px) {
       .board .hide-xs { display: none; }
     }
@@ -306,7 +317,9 @@
 </head>
 <body>
 
-<header>
+<div id="authLoading" class="auth-loading">Sitzung wird geprüft…</div>
+
+<header class="app-loading">
   <div class="logo">🃏</div>
   <div>
     <h1>Durak <span>Tracker</span></h1>
@@ -320,7 +333,7 @@
   </div>
 </header>
 
-<main>
+<main class="app-loading">
 
   <!-- LEFT COLUMN -->
   <div style="display:flex;flex-direction:column;gap:1.5rem">
@@ -396,9 +409,9 @@
 
 </main>
 
-<div id="toast"></div>
+<div id="toast" class="app-loading"></div>
 
-<div class="overlay" id="overlay">
+<div class="overlay app-loading" id="overlay">
   <div class="dialog">
     <h3>Alle Daten löschen?</h3>
     <p>Der gesamte Spielverlauf und alle Statistiken werden unwiderruflich gelöscht.</p>

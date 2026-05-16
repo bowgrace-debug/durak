@@ -13,11 +13,19 @@ async function signOutUser() {
   else window.location.href = '/login.html';
 }
 
+function revealApp() {
+  document.getElementById('authLoading').style.display = 'none';
+  document.querySelectorAll('.app-loading').forEach(el => {
+    el.classList.remove('app-loading');
+  });
+}
+
 function setAuthUI(user) {
   const userBar = document.getElementById('userBar');
   const userName = document.getElementById('userName');
 
   if (user) {
+    revealApp();
     userBar.style.display = 'flex';
     const meta = user.user_metadata || {};
     userName.textContent = meta.full_name || user.email || 'Angemeldet';
