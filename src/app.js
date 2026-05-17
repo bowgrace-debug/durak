@@ -38,9 +38,11 @@ async function boot() {
 // ── Auth helpers ───────────────────────────────────────────────────────────
 function updateUserInfo() {
   const email = session.user.email || ''
-  const initials = email.slice(0, 2).toUpperCase()
-  document.getElementById('user-avatar').textContent = initials
+  const ini = email.slice(0, 2).toUpperCase()
+  document.getElementById('user-avatar').textContent = ini
   document.getElementById('user-email').textContent = email
+  const mobileAvatar = document.getElementById('mobile-user-avatar')
+  if (mobileAvatar) mobileAvatar.textContent = ini
 }
 
 // ── Navigation ─────────────────────────────────────────────────────────────
@@ -65,12 +67,10 @@ function showView(name) {
 
 // ── Theme ──────────────────────────────────────────────────────────────────
 function wireTheme() {
-  const btn = document.getElementById('theme-btn')
-  btn.textContent = themeIcon()
-  btn.addEventListener('click', () => {
-    toggleTheme()
-    btn.textContent = themeIcon()
-  })
+  const btns = [document.getElementById('theme-btn'), document.getElementById('mobile-theme-btn')].filter(Boolean)
+  const update = () => btns.forEach(b => b.textContent = themeIcon())
+  update()
+  btns.forEach(b => b.addEventListener('click', () => { toggleTheme(); update() }))
 }
 
 // ── Modal helpers ──────────────────────────────────────────────────────────
@@ -91,6 +91,7 @@ function closeModal(id) { document.getElementById(id).classList.remove('open') }
 // ── Sidebar buttons ────────────────────────────────────────────────────────
 function wireSidebarButtons() {
   document.getElementById('logout-btn').addEventListener('click', signOut)
+  document.getElementById('mobile-logout-btn')?.addEventListener('click', signOut)
 
   const openNewSession = () => openNewSessionModal()
   document.getElementById('ov-new-session-btn').addEventListener('click', openNewSession)

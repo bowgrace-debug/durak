@@ -2,13 +2,29 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <title>ZW-Unit Durak</title>
   <link rel="stylesheet" href="/src/style.css" />
 </head>
 <body>
 
 <div class="app-layout">
+
+  <!-- ── Mobile Header (visible ≤768px) ── -->
+  <header class="mobile-header" id="mobile-header">
+    <div class="mobile-header-left">
+      <img class="logo-img" src="./logo.png" alt="ZW-Unit" style="height:28px;" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';" />
+      <span style="display:none;font-weight:700;font-size:1rem;">ZW-Unit</span>
+    </div>
+    <div class="mobile-header-right">
+      <button class="theme-toggle" id="mobile-theme-btn" title="Theme wechseln"></button>
+      <div class="user-avatar" id="mobile-user-avatar" style="width:28px;height:28px;font-size:0.7rem;">?</div>
+      <button class="btn btn-glass btn-sm" id="mobile-logout-btn" style="padding:5px 10px;font-size:0.75rem;">Abmelden</button>
+    </div>
+  </header>
 
   <!-- ── Sidebar ── -->
   <aside class="sidebar" id="sidebar">
