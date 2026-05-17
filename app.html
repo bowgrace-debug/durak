@@ -70,7 +70,7 @@
     <section class="view active" id="view-overview">
       <div class="view-header">
         <h1 class="view-title">Übersicht</h1>
-        <button class="btn btn-primary btn-sm" id="ov-new-session-btn">+ Neue Session</button>
+        <button class="btn btn-primary btn-sm organizer-only" id="ov-new-session-btn">+ Neue Session</button>
       </div>
       <div id="ov-session-banner"></div>
       <div class="stats-grid" id="ov-stats"></div>
@@ -98,7 +98,7 @@
     <section class="view" id="view-session">
       <div class="view-header">
         <h1 class="view-title">Session</h1>
-        <button class="btn btn-primary btn-sm" id="sess-new-btn">+ Neue Session</button>
+        <button class="btn btn-primary btn-sm organizer-only" id="sess-new-btn">+ Neue Session</button>
       </div>
       <div id="sess-content">
         <div class="glass" style="padding:48px;text-align:center;color:var(--text-2);">
@@ -114,7 +114,7 @@
     <section class="view" id="view-players">
       <div class="view-header">
         <h1 class="view-title">Spieler</h1>
-        <button class="btn btn-primary btn-sm" id="pl-new-btn">+ Neuer Spieler</button>
+        <button class="btn btn-primary btn-sm organizer-only" id="pl-new-btn">+ Neuer Spieler</button>
       </div>
       <div class="glass" style="padding:0;overflow:hidden;">
         <table class="data-table" id="players-table">
@@ -125,7 +125,7 @@
               <th>Siege</th>
               <th>Duraks</th>
               <th>Punkte</th>
-              <th></th>
+              <th class="organizer-only"></th>
             </tr>
           </thead>
           <tbody id="players-body">

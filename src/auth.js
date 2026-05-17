@@ -1,6 +1,6 @@
 import { supabase } from './supabase.js'
 
-const BASE = import.meta.env.BASE_URL || '/durak/'
+export const BASE = import.meta.env.BASE_URL || '/durak/'
 
 export async function requireAuth() {
   const { data: { session } } = await supabase.auth.getSession()
@@ -8,6 +8,11 @@ export async function requireAuth() {
     window.location.href = BASE + 'login.html'
     return null
   }
+  return session
+}
+
+export async function getOptionalSession() {
+  const { data: { session } } = await supabase.auth.getSession()
   return session
 }
 

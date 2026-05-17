@@ -1,5 +1,5 @@
 import { supabase } from './supabase.js'
-import { requireAuth, signOut, initTheme, toggleTheme, themeIcon } from './auth.js'
+import { getOptionalSession, signOut, initTheme, toggleTheme, themeIcon, BASE } from './auth.js'
 
 // ── State ──────────────────────────────────────────────────────────────────
 let session = null          // supabase auth session
@@ -20,8 +20,8 @@ const COLORS = ['#f59e0b','#ef4444','#22c55e','#3b82f6','#a855f7','#ec4899','#06
 // ── Boot ───────────────────────────────────────────────────────────────────
 async function boot() {
   initTheme()
-  session = await requireAuth()
-  if (!session) return
+  session = await getOptionalSession()
+  document.body.classList.toggle('is-organizer', !!session)
 
   updateUserInfo()
   wireNav()
@@ -37,11 +37,17 @@ async function boot() {
 
 // ── Auth helpers ───────────────────────────────────────────────────────────
 function updateUserInfo() {
+  const mobileAvatar = document.getElementById('mobile-user-avatar')
+  if (!session) {
+    document.getElementById('user-avatar').textContent = '?'
+    document.getElementById('user-email').textContent = 'Gast'
+    if (mobileAvatar) mobileAvatar.textContent = '?'
+    return
+  }
   const email = session.user.email || ''
   const ini = email.slice(0, 2).toUpperCase()
   document.getElementById('user-avatar').textContent = ini
   document.getElementById('user-email').textContent = email
-  const mobileAvatar = document.getElementById('mobile-user-avatar')
   if (mobileAvatar) mobileAvatar.textContent = ini
 }
 
@@ -102,15 +108,27 @@ function closeModal(id) { document.getElementById(id).classList.remove('open') }
 
 // ── Sidebar buttons ────────────────────────────────────────────────────────
 function wireSidebarButtons() {
-  document.getElementById('logout-btn').addEventListener('click', signOut)
-  document.getElementById('mobile-logout-btn')?.addEventListener('click', signOut)
+  const logoutBtn = document.getElementById('logout-btn')
+  const mobileLogoutBtn = document.getElementById('mobile-logout-btn')
 
-  const openNewSession = () => openNewSessionModal()
-  document.getElementById('ov-new-session-btn').addEventListener('click', openNewSession)
-  document.getElementById('sess-new-btn').addEventListener('click', openNewSession)
-  document.getElementById('sess-empty-btn')?.addEventListener('click', openNewSession)
+  if (session) {
+    logoutBtn.addEventListener('click', signOut)
+    mobileLogoutBtn?.addEventListener('click', signOut)
 
-  document.getElementById('pl-new-btn').addEventListener('click', openNewPlayerModal)
+    const openNewSession = () => openNewSessionModal()
+    document.getElementById('ov-new-session-btn').addEventListener('click', openNewSession)
+    document.getElementById('sess-new-btn').addEventListener('click', openNewSession)
+    document.getElementById('sess-empty-btn')?.addEventListener('click', openNewSession)
+    document.getElementById('pl-new-btn').addEventListener('click', openNewPlayerModal)
+  } else {
+    const goLogin = () => { window.location.href = BASE + 'login.html' }
+    logoutBtn.textContent = 'Anmelden'
+    logoutBtn.addEventListener('click', goLogin)
+    if (mobileLogoutBtn) {
+      mobileLogoutBtn.textContent = 'Anmelden'
+      mobileLogoutBtn.addEventListener('click', goLogin)
+    }
+  }
 }
 
 // ── Data loading ───────────────────────────────────────────────────────────
@@ -268,9 +286,9 @@ function renderSession() {
         <div style="font-size:3rem;margin-bottom:16px;">🃏</div>
         <h2>Keine aktive Session</h2>
         <p style="margin:8px 0 24px;">Starte eine neue Session und wähle die Spieler aus.</p>
-        <button class="btn btn-primary" onclick="window._newSess()">+ Neue Session starten</button>
+        ${session ? '<button class="btn btn-primary" onclick="window._newSess()">+ Neue Session starten</button>' : ''}
       </div>`
-    window._newSess = openNewSessionModal
+    if (session) window._newSess = openNewSessionModal
     return
   }
 
@@ -295,10 +313,10 @@ function renderSession() {
           </div>
           <div class="text-muted" style="font-size:0.85rem;">${date} · ${sessionGames.length} Runden gespielt</div>
         </div>
-        <div style="display:flex;gap:8px;">
+        ${session ? `<div style="display:flex;gap:8px;">
           <button class="btn btn-primary btn-sm" id="record-game-btn">+ Runde eintragen</button>
           <button class="btn btn-danger btn-sm" id="end-session-btn">Session beenden</button>
-        </div>
+        </div>` : ''}
       </div>
 
       <div class="glass-strong" style="padding:0;overflow:hidden;">
@@ -343,8 +361,10 @@ function renderSession() {
     </div>` : ''}
   `
 
-  document.getElementById('record-game-btn').addEventListener('click', openGameModal)
-  document.getElementById('end-session-btn').addEventListener('click', endSession)
+  if (session) {
+    document.getElementById('record-game-btn').addEventListener('click', openGameModal)
+    document.getElementById('end-session-btn').addEventListener('click', endSession)
+  }
 }
 
 // ── Players View ───────────────────────────────────────────────────────────
@@ -371,26 +391,26 @@ function renderPlayers() {
       <td><span class="badge badge-green">${s.wins}</span></td>
       <td><span class="badge badge-red">${s.duraks}</span></td>
       <td><strong style="color:${pts >= 0 ? 'var(--success)' : 'var(--danger)'};">${pts >= 0 ? '+' : ''}${pts}</strong></td>
-      <td>
-        <button class="btn btn-danger btn-sm" onclick="window._deletePlayer('${p.id}')">🗑</button>
-      </td>
+      ${session ? `<td><button class="btn btn-danger btn-sm" onclick="window._deletePlayer('${p.id}')">🗑</button></td>` : '<td></td>'}
     </tr>`
   }).join('')
 
-  window._deletePlayer = (id) => {
-    pendingDeletePlayerId = id
-    openModal('modal-delete-player')
-  }
+  if (session) {
+    window._deletePlayer = (id) => {
+      pendingDeletePlayerId = id
+      openModal('modal-delete-player')
+    }
 
-  const confirmBtn = document.getElementById('dp-confirm-btn')
-  confirmBtn.onclick = async () => {
-    if (!pendingDeletePlayerId) return
-    const { error } = await supabase.from('players').delete().eq('id', pendingDeletePlayerId)
-    if (error) return toast('Fehler beim Löschen', 'error')
-    closeModal('modal-delete-player')
-    toast('Spieler gelöscht', 'success')
-    await Promise.all([loadPlayers(), loadPlayerStats()])
-    renderPlayers()
+    const confirmBtn = document.getElementById('dp-confirm-btn')
+    confirmBtn.onclick = async () => {
+      if (!pendingDeletePlayerId) return
+      const { error } = await supabase.from('players').delete().eq('id', pendingDeletePlayerId)
+      if (error) return toast('Fehler beim Löschen', 'error')
+      closeModal('modal-delete-player')
+      toast('Spieler gelöscht', 'success')
+      await Promise.all([loadPlayers(), loadPlayerStats()])
+      renderPlayers()
+    }
   }
 }
 
