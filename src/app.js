@@ -29,8 +29,8 @@ async function boot() {
   wireTheme()
   wireSidebarButtons()
 
-  await Promise.all([loadPlayers(), loadPlayerStats()])
-  await loadActiveSession()
+  await loadPlayers()
+  await Promise.all([loadPlayerStats(), loadActiveSession()])
 
   showView('overview')
 }
@@ -55,14 +55,26 @@ function wireNav() {
   })
 }
 
-function showView(name) {
+async function showView(name) {
   document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.view === name))
   document.querySelectorAll('.view').forEach(el => el.classList.toggle('active', el.id === `view-${name}`))
 
-  if (name === 'overview')    renderOverview()
-  if (name === 'session')     renderSession()
-  if (name === 'players')     renderPlayers()
-  if (name === 'leaderboard') renderLeaderboard()
+  if (name === 'overview') {
+    await Promise.all([loadPlayerStats(), loadActiveSession()])
+    renderOverview()
+  }
+  if (name === 'session') {
+    await loadActiveSession()
+    renderSession()
+  }
+  if (name === 'players') {
+    await loadPlayerStats()
+    renderPlayers()
+  }
+  if (name === 'leaderboard') {
+    await loadPlayerStats()
+    renderLeaderboard()
+  }
 }
 
 // ── Theme ──────────────────────────────────────────────────────────────────
@@ -638,8 +650,7 @@ async function createPlayer() {
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
-function playerChip(p, variant) {
-  const cls = variant === 'danger' ? 'badge-red' : ''
+function playerChip(p) {
   return `<span class="player-chip">
     <span class="player-avatar" style="background:${p.color};">${initials(p.name)}</span>
     ${esc(p.name)}
